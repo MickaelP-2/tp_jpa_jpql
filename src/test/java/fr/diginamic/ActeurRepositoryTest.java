@@ -22,9 +22,8 @@ public class ActeurRepositoryTest {
 	@Test
 	public void testExtraireActeursTriesParIdentite() {
 		
-		TypedQuery<Acteur> query = em.createQuery("SELECT a FROM Acteur a", Acteur.class);
+		TypedQuery<Acteur> query = em.createQuery("SELECT a FROM Acteur a ORDER BY a.identite ", Acteur.class);
 		List<Acteur> acteurs = query.getResultList();
-		
 		assertEquals(1137, acteurs.size());
 		assertEquals("A.J. Danna", acteurs.get(0).getIdentite());
 	}
@@ -34,9 +33,10 @@ public class ActeurRepositoryTest {
 	 */
 	@Test
 	public void testExtraireActeursParIdentite() {
-		TypedQuery<Acteur> query = em.createQuery("SELECT a FROM Acteur a", Acteur.class);
-		List<Acteur> acteurs = query.getResultList();
-		
+		TypedQuery<Acteur> query = em.createQuery("SELECT a FROM Acteur a WHERE a.identite = :identite", Acteur.class);
+		//TypedQuery<Acteur> query = em.createQuery("SELECT a FROM Acteur a WHERE a.identite = 'Marion Cotillard'", Acteur.class);
+		query.setParameter("identite","Marion Cotillard");
+		List<Acteur> acteurs = query.getResultList();//=OK
 		assertEquals(1, acteurs.size());
 		assertEquals("Marion Cotillard", acteurs.get(0).getIdentite());
 	}
@@ -47,7 +47,9 @@ public class ActeurRepositoryTest {
 	 */
 	@Test
 	public void testExtraireActeursParAnneeNaissance() {
-		TypedQuery<Acteur> query = em.createQuery("SELECT a FROM Acteur a", Acteur.class);
+		//TypedQuery<Acteur> query = em.createQuery("SELECT a FROM Acteur a WHERE YEAR (a.naissance) = '1985'", Acteur.class);
+		TypedQuery<Acteur> query = em.createQuery("SELECT a FROM Acteur a WHERE YEAR (a.anniversaire) = :naissance", Acteur.class);
+		query.setParameter("naissance",1985);
 		List<Acteur> acteurs = query.getResultList();
 		
 		assertEquals(10, acteurs.size());
@@ -59,12 +61,15 @@ public class ActeurRepositoryTest {
 	@Test
 	public void testExtraireActeursParRole() {
 		
-		TypedQuery<Acteur> query = em.createQuery("SELECT a FROM Acteur a", Acteur.class);
+		TypedQuery<Acteur> query = em.createQuery("SELECT a FROM Acteur a JOIN a.roles r WHERE r.nom = :nom", Acteur.class);
+		//TypedQuery<Role> query = em.createQuery("SELECT r FROM Role r WHERE r.nom = :nom ", Role.class);
+		query.setParameter("nom","Harley QUINN");
 		List<Acteur> acteurs = query.getResultList();
 		
 		assertEquals(2, acteurs.size());
 		assertEquals("Margot Robbie", acteurs.get(0).getIdentite());
 		assertEquals("Margot Robbie", acteurs.get(1).getIdentite());
+		
 	}
 	
 	/**
@@ -72,7 +77,8 @@ public class ActeurRepositoryTest {
 	 */
 	@Test
 	public void testExtraireActeursParFilmParuAnnee() {
-		TypedQuery<Acteur> query = em.createQuery("SELECT a FROM Acteur a", Acteur.class);
+		TypedQuery<Acteur> query = em.createQuery("SELECT a FROM Acteur a JOIN a.roles r JOIN r.film WHERE r.film.annee = :date", Acteur.class);
+		query.setParameter("date",2015);
 		List<Acteur> acteurs = query.getResultList();
 		assertEquals(140, acteurs.size());
 	}
@@ -83,7 +89,8 @@ public class ActeurRepositoryTest {
 	 */
 	@Test
 	public void testExtraireActeursParPays() {
-		TypedQuery<Acteur> query = em.createQuery("SELECT a FROM Acteur a", Acteur.class);
+		TypedQuery<Acteur> query = em.createQuery("SELECT a FROM Acteur a JOIN a.roles r JOIN r.film f JOIN f.pays WHERE f.pays.nom = :nationalite", Acteur.class);
+		query.setParameter("nationalite", "France");
 		List<Acteur> acteurs = query.getResultList();
 		assertEquals(158, acteurs.size());
 	}
